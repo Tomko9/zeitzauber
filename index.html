@@ -10,76 +10,169 @@
       padding: 0;
       height: 100%;
       width: 100%;
-      overflow: hidden;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: url('https://images.unsplash.com/photo-1612392062204-25e181eb6d8a?auto=format&fit=crop&w=1125&q=80') no-repeat center center fixed;
       background-size: cover;
       display: flex;
-      justify-content: center;
-      align-items: center;
       flex-direction: column;
       color: white;
+      overflow: hidden;
+      position: relative;
     }
 
-    #time {
-      font-size: 72px;
+    #statusbar {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      height: 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 12px;
+      font-size: 14px;
+      opacity: 0.8;
+    }
+
+    #left-time {
+      font-weight: 500;
+    }
+
+    #right-icons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .icon {
+      width: 18px;
+      height: 18px;
+      background-color: white;
+      border-radius: 3px;
+      opacity: 0.8;
+    }
+
+    #notch {
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 210px;
+      height: 30px;
+      background: black;
+      border-radius: 20px;
+      z-index: 1;
+    }
+
+    #clock {
+      margin-top: 90px;
+      font-size: 64px;
+      text-align: center;
       font-weight: 300;
-      letter-spacing: 2px;
-      text-shadow: 0 0 10px rgba(0,0,0,0.6);
+      text-shadow: 0 0 10px rgba(0,0,0,0.5);
+      user-select: none;
+    }
+    #menu-button {
+      position: absolute;
+      top: 50px;
+      right: 20px;
+      font-size: 24px;
+      background: none;
+      border: none;
+      color: white;
+      opacity: 0.6;
+      cursor: pointer;
+      z-index: 2;
     }
 
-    #controls {
-      margin-top: 20px;
-      background: rgba(0,0,0,0.5);
-      padding: 10px 20px;
+    #menu {
+      position: absolute;
+      top: 90px;
+      right: 20px;
+      background: rgba(0,0,0,0.6);
+      padding: 10px;
       border-radius: 10px;
+      display: none;
+      flex-direction: column;
+      z-index: 2;
     }
 
-    input, button {
+    #menu input {
       font-size: 16px;
-      padding: 6px 12px;
+      margin-bottom: 10px;
+      padding: 5px;
       border-radius: 6px;
       border: none;
+      width: 120px;
     }
 
-    button {
+    #menu button {
+      font-size: 16px;
+      padding: 5px;
+      border: none;
+      border-radius: 6px;
       background: #0ff;
-      color: #000;
+      color: black;
       font-weight: bold;
       cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <div id="time">--:--:--</div>
-  <div id="controls">
-    <input type="time" id="startTime" step="1">
+  <div id="statusbar">
+    <div id="left-time">9:41</div>
+    <div id="right-icons">
+      <div class="icon"></div>
+      <div class="icon"></div>
+      <div class="icon"></div>
+    </div>
+  </div>
+  <div id="notch"></div>
+  <button id="menu-button" onclick="toggleMenu()">⚙️</button>
+  <div id="menu">
+    <input type="time" id="startTime" step="1" />
     <button onclick="startCountdown()">Start</button>
   </div>
-
+  <div id="clock" ontouchstart="tapHoldStart()" ontouchend="tapHoldEnd()">--:--:--</div>
   <script>
-    let target, interval;
-    function startCountdown() {
-      const val = document.getElementById('startTime').value;
-      if (!val) return;
-      const now = new Date();
-      const [h, m, s] = val.split(':').map(Number);
-      target = new Date();
-      target.setHours(h, m, s || 0, 0);
-      clearInterval(interval);
-      updateTime();
-      interval = setInterval(updateTime, 1000);
+    let interval, target;
+    let tapTimer;
+
+    function toggleMenu() {
+      const m = document.getElementById("menu");
+      m.style.display = m.style.display === "flex" ? "none" : "flex";
     }
 
-    function updateTime() {
+    function startCountdown() {
+      const val = document.getElementById("startTime").value;
+      if (!val) return;
+      const now = new Date();
+      const [h, m, s] = val.split(":").map(Number);
+      target = new Date();
+      target.setHours(h, m, s || 0, 0);
+      document.getElementById("menu").style.display = "none";
+      clearInterval(interval);
+      updateClock();
+      interval = setInterval(updateClock, 1000);
+    }
+
+    function updateClock() {
       const now = new Date();
       let diff = Math.max(0, target - now);
       const d = new Date(diff);
       const hh = String(d.getUTCHours()).padStart(2, '0');
       const mm = String(d.getUTCMinutes()).padStart(2, '0');
       const ss = String(d.getUTCSeconds()).padStart(2, '0');
-      document.getElementById('time').textContent = `${hh}:${mm}:${ss}`;
+      document.getElementById("clock").textContent = `${hh}:${mm}:${ss}`;
       if (diff <= 0) clearInterval(interval);
+    }
+
+    function tapHoldStart() {
+      tapTimer = setTimeout(() => {
+        toggleMenu();
+      }, 800); // Long press in ms
+    }
+
+    function tapHoldEnd() {
+      clearTimeout(tapTimer);
     }
   </script>
 </body>
