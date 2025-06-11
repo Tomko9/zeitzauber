@@ -2,136 +2,84 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Zeitzauber</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iPhone Lockscreen</title>
   <style>
-    body {
+    html, body {
       margin: 0;
-      background-color: #111;
-      font-family: 'Segoe UI', sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-
-    .phone {
-      width: 320px;
-      height: 640px;
-      background: #000;
-      border-radius: 40px;
-      border: 8px solid #333;
-      position: relative;
+      padding: 0;
+      height: 100%;
+      width: 100%;
       overflow: hidden;
-      box-shadow: 0 0 30px #000;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: url('https://images.unsplash.com/photo-1612392062204-25e181eb6d8a?auto=format&fit=crop&w=1125&q=80') no-repeat center center fixed;
+      background-size: cover;
       display: flex;
-      flex-direction: column;
-      color: #fff;
-    }
-
-    .statusbar {
-      height: 24px;
-      background: #000;
-      color: #fff;
-      font-size: 12px;
-      padding: 4px 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-family: monospace;
-    }
-
-    .clock {
-      flex: 1;
-      display: flex;
-      align-items: center;
       justify-content: center;
-      font-size: 64px;
-      font-weight: bold;
+      align-items: center;
+      flex-direction: column;
+      color: white;
     }
 
-    .settings {
-      padding: 12px;
-      text-align: center;
-      background: #111;
+    #time {
+      font-size: 72px;
+      font-weight: 300;
+      letter-spacing: 2px;
+      text-shadow: 0 0 10px rgba(0,0,0,0.6);
     }
 
-    input {
-      padding: 6px;
+    #controls {
+      margin-top: 20px;
+      background: rgba(0,0,0,0.5);
+      padding: 10px 20px;
+      border-radius: 10px;
+    }
+
+    input, button {
       font-size: 16px;
-      width: 120px;
-      border-radius: 4px;
+      padding: 6px 12px;
+      border-radius: 6px;
       border: none;
-      text-align: center;
     }
 
     button {
-      margin-left: 8px;
-      padding: 6px 12px;
-      font-size: 16px;
-      border: none;
-      border-radius: 4px;
-      background: #0f0;
+      background: #0ff;
       color: #000;
       font-weight: bold;
       cursor: pointer;
     }
-
-    .status {
-      margin-top: 8px;
-      font-size: 12px;
-      color: #ccc;
-    }
   </style>
 </head>
 <body>
-  <div class="phone">
-    <div class="statusbar">
-      <span id="barTime">--:--</span>
-      <span>📶  Wi-Fi  🔋</span>
-    </div>
-    <div class="clock" id="mainClock">--:--:--</div>
-    <div class="settings">
-      <input type="time" id="startTime" step="1" />
-      <button onclick="startCountdown()">Start</button>
-      <div class="status" id="statusText">Wähle die Startzeit</div>
-    </div>
+  <div id="time">--:--:--</div>
+  <div id="controls">
+    <input type="time" id="startTime" step="1">
+    <button onclick="startCountdown()">Start</button>
   </div>
 
   <script>
-    let targetTime;
-    let interval;
-
-    function pad(n) {
-      return n.toString().padStart(2, '0');
-    }
-
-    function updateClocks() {
-      if (!targetTime) return;
-      const now = new Date();
-      const diff = Math.max(0, targetTime - now);
-      const d = new Date(diff);
-      const h = pad(d.getUTCHours());
-      const m = pad(d.getUTCMinutes());
-      const s = pad(d.getUTCSeconds());
-      document.getElementById("mainClock").textContent = `${h}:${m}:${s}`;
-      document.getElementById("barTime").textContent = `${h}:${m}`;
-      if (diff <= 0) {
-        clearInterval(interval);
-        document.getElementById("statusText").textContent = "🪄 Zeit abgelaufen!";
-      }
-    }
-
+    let target, interval;
     function startCountdown() {
-      const input = document.getElementById("startTime").value;
-      if (!input) return;
+      const val = document.getElementById('startTime').value;
+      if (!val) return;
       const now = new Date();
-      const [h, m, s] = input.split(":").map(Number);
-      targetTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, s);
-      document.getElementById("statusText").textContent = "⏳ Countdown läuft...";
-      updateClocks();
+      const [h, m, s] = val.split(':').map(Number);
+      target = new Date();
+      target.setHours(h, m, s || 0, 0);
       clearInterval(interval);
-      interval = setInterval(updateClocks, 1000);
+      updateTime();
+      interval = setInterval(updateTime, 1000);
+    }
+
+    function updateTime() {
+      const now = new Date();
+      let diff = Math.max(0, target - now);
+      const d = new Date(diff);
+      const hh = String(d.getUTCHours()).padStart(2, '0');
+      const mm = String(d.getUTCMinutes()).padStart(2, '0');
+      const ss = String(d.getUTCSeconds()).padStart(2, '0');
+      document.getElementById('time').textContent = `${hh}:${mm}:${ss}`;
+      if (diff <= 0) clearInterval(interval);
     }
   </script>
 </body>
