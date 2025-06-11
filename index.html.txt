@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Handy-Zeit-Trick</title>
+  <style>
+    body {
+      background-color: #000;
+      color: #0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: monospace;
+      font-size: 48px;
+    }
+    .screen {
+      border: 2px solid #0f0;
+      padding: 40px;
+      border-radius: 30px;
+      text-align: center;
+    }
+    button {
+      margin-top: 30px;
+      padding: 10px 20px;
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="screen">
+    <div id="clock">17:30</div>
+    <button onclick="rewindTime()">Zeit zurückstellen</button>
+  </div>
+
+  <script>
+    let minutes = 30;
+    function updateClock() {
+      document.getElementById("clock").textContent = `17:${minutes < 10 ? "0" : ""}${minutes}`;
+    }
+    function rewindTime() {
+      minutes = Math.max(0, minutes - 2);
+      updateClock();
+    }
+  </script>
+</body>
+</html>
