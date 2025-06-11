@@ -3,45 +3,113 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Handy-Zeit-Trick</title>
+  <title>Zeitzauber</title>
   <style>
     body {
-      background-color: #000;
-      color: #0f0;
+      margin: 0;
+      font-family: sans-serif;
+      background: #000;
+      color: #fff;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
+      justify-content: center;
       height: 100vh;
-      font-family: monospace;
-      font-size: 48px;
+      background: linear-gradient(to bottom, #111, #333);
     }
-    .screen {
-      border: 2px solid #0f0;
-      padding: 40px;
-      border-radius: 30px;
+
+    .phone {
+      width: 300px;
+      height: 600px;
+      border: 16px solid #222;
+      border-radius: 40px;
+      padding: 40px 20px;
+      background: #000;
+      position: relative;
+      box-shadow: 0 0 20px #000;
+    }
+
+    #clock {
+      font-size: 48px;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .settings {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    input {
+      padding: 10px;
+      font-size: 16px;
+      width: 100px;
       text-align: center;
     }
+
     button {
-      margin-top: 30px;
-      padding: 10px 20px;
-      font-size: 20px;
+      margin-left: 10px;
+      padding: 10px 16px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .status {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #aaa;
     }
   </style>
 </head>
 <body>
-  <div class="screen">
-    <div id="clock">17:30</div>
-    <button onclick="rewindTime()">Zeit zurückstellen</button>
+  <div class="phone">
+    <div id="clock">--:--</div>
+
+    <div class="settings">
+      <input type="time" id="startTime" />
+      <button onclick="startCountdown()">Starten</button>
+      <div class="status" id="status">Zeit wählen und starten</div>
+    </div>
   </div>
 
   <script>
-    let minutes = 30;
-    function updateClock() {
-      document.getElementById("clock").textContent = `17:${minutes < 10 ? "0" : ""}${minutes}`;
-    }
-    function rewindTime() {
-      minutes = Math.max(0, minutes - 2);
+    let countdownInterval;
+    let currentMinutes = 0;
+    let currentHours = 0;
+
+    function startCountdown() {
+      const timeInput = document.getElementById("startTime").value;
+      if (!timeInput) return;
+
+      const [h, m] = timeInput.split(":").map(Number);
+      currentHours = h;
+      currentMinutes = m;
+      document.getElementById("status").textContent = "Countdown läuft...";
       updateClock();
+
+      clearInterval(countdownInterval);
+      countdownInterval = setInterval(() => {
+        if (currentHours === 0 && currentMinutes === 0) {
+          clearInterval(countdownInterval);
+          document.getElementById("status").textContent = "Zeit abgelaufen ⏳";
+          return;
+        }
+
+        if (currentMinutes === 0) {
+          currentHours = Math.max(0, currentHours - 1);
+          currentMinutes = 59;
+        } else {
+          currentMinutes -= 1;
+        }
+
+        updateClock();
+      }, 1000); // 1 Sekunde pro Minute simulieren (zum Testen!)
+    }
+
+    function updateClock() {
+      const h = String(currentHours).padStart(2, "0");
+      const m = String(currentMinutes).padStart(2, "0");
+      document.getElementById("clock").textContent = `${h}:${m}`;
     }
   </script>
 </body>
